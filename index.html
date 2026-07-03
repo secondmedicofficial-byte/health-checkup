@@ -284,7 +284,7 @@
     color:var(--purple-deep);
     margin-bottom:6px;
   }
-  .field input, .field select{
+  .field input, .field select, .field textarea{
     width:100%;
     padding:13px 14px;
     border:1.5px solid #D8CFE0;
@@ -293,7 +293,7 @@
     font-family:inherit;
     background: var(--white);
   }
-  .field input:focus, .field select:focus{
+  .field input:focus, .field select:focus, .field textarea:focus{
     outline:none;
     border-color:var(--teal);
   }
@@ -408,12 +408,17 @@
     font-weight: 800;
     margin-bottom: 12px;
   }
+  .ivr-success-container .action-buttons-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 24px 0;
+  }
   .ivr-success-container p {
     color: #4A3E56;
     font-size: 15px;
     font-weight: 600;
     line-height: 1.5;
-    margin-bottom: 28px;
   }
   .ivr-success-container .btn-priority-call {
     display: inline-flex;
@@ -431,17 +436,32 @@
     box-shadow: 0 10px 24px rgba(13,115,119,0.35);
     transition: transform 0.15s ease;
   }
-  .ivr-success-container .btn-priority-call:hover {
+  .ivr-success-container .btn-whatsapp-redirect {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    background: linear-gradient(135deg, #25D366, #128C7E);
+    color: var(--white);
+    padding: 18px;
+    font-size: 19px;
+    font-weight: 700;
+    border-radius: 12px;
+    text-decoration: none;
+    box-shadow: 0 10px 24px rgba(37,211,102,0.3);
+    transition: transform 0.15s ease;
+  }
+  .ivr-success-container .btn-priority-call:hover, .ivr-success-container .btn-whatsapp-redirect:hover {
     transform: translateY(-2px);
   }
-  .ivr-success-container .btn-priority-call svg {
+  .ivr-success-container svg {
     width: 22px;
     height: 22px;
     fill: var(--white);
   }
   .ivr-success-container .sub-notice {
     display: block;
-    margin-top: 14px;
     font-size: 12.5px;
     color: #8a7f96;
     font-weight: 600;
@@ -684,6 +704,11 @@
           <label for="email">Email Address *</label>
           <input type="email" id="email" name="email" placeholder="you@example.com" required>
         </div>
+        <!-- MANDATORY ADDRESS WRAPPER INPUT -->
+        <div class="field">
+          <label for="address">Full Home Address *</label>
+          <textarea id="address" name="address" rows="2" placeholder="House/Flat No, Building, Street, Area details" required></textarea>
+        </div>
 
         <button type="submit" class="submit-btn" id="submitBtn">Book My Checkup Now</button>
         <div class="form-status" id="formStatus"></div>
@@ -694,14 +719,23 @@
         <div class="ivr-success-container">
           <div class="success-icon">✅</div>
           <h3>Details Received Securely!</h3>
-          <p>Your booking request is logged in our system. To instantly verify your address and confirm your priority morning slot, tap below to call our coordinator right now:</p>
+          <p>Your booking request is logged in our system. To instantly verify your address and confirm your priority morning slot, tap below to contact us immediately:</p>
           
-          <a href="#" class="btn-priority-call dynamic-call-link">
-            <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.2 1.1L6.6 10.8z"/></svg>
-            Call <span class="dynamic-phone-text">...</span>
-          </a>
+          <div class="action-buttons-stack">
+            <!-- Call Button -->
+            <a href="#" class="btn-priority-call dynamic-call-link">
+              <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.2 1.1L6.6 10.8z"/></svg>
+              Call Now: <span class="dynamic-phone-text">...</span>
+            </a>
+
+            <!-- WhatsApp Redirection Button -->
+            <a href="https://wa.me/919871857858?text=Hi,%20I%20just%20filled%20my%20details%20on%20the%20landing%20page.%20Please%20confirm%20my%20health%20checkup%20appointment." class="btn-whatsapp-redirect" target="_blank">
+              <svg viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.734-1.456L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.013-5.101-2.859-6.95F16.579 1.949 14.12 1.01 11.998 1.01c-5.438 0-9.863 4.372-9.867 9.8-.001 1.73.457 3.413 1.32 4.931L2.256 21.8l6.391-1.646zm11.332-6.666c-.302-.152-1.79-.885-2.067-.986-.278-.101-.48-.152-.681.152-.202.304-.778.986-.954 1.189-.176.202-.353.228-.655.077-1.396-.7-2.42-1.146-3.399-2.796-.258-.436-.258-.751-.101-1.049.141-.268.302-.456.453-.632.152-.177.202-.304.302-.506.101-.202.051-.38-.025-.531-.076-.152-.681-1.646-.933-2.253-.245-.59-.494-.51-.681-.51-.176-.002-.378-.002-.58-.002-.202 0-.531.076-.809.38-.278.304-1.062 1.039-1.062 2.533 0 1.493 1.087 2.937 1.238 3.14 1.516 2.011 3.447 3.057 5.341 3.756.496.182.949.221 1.3.154.393-.075 1.21-.494 1.382-.973.171-.478.171-.887.121-.973-.05-.087-.182-.139-.484-.291z"/></svg>
+              Chat on WhatsApp
+            </a>
+          </div>
           
-          <span class="sub-notice">Calling verifies your appointment status immediately.</span>
+          <span class="sub-notice">Connecting via Call or WhatsApp verifies your slots instantly.</span>
         </div>
       </div>
 
@@ -715,10 +749,7 @@
 </footer>
 
 <script>
-  // ⚠️ YOUR SPECIFIC APP SCRIPT DESTINATION ROUTE
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwclhYTQOKN-8lk5d90va2fUS_DV7XqZgHqa8CvmajUoGJGwaYEC2Hy9-PIVPyychuzsA/exec";
-
-  // 📞 CENTRALIZED CALL ATTRIBUTION TRACKING VARIABLE
   const TRACKING_PHONE_NUMBER = "9811076780"; 
 
   function initializePhoneAttribution() {
@@ -823,7 +854,6 @@
     return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
-  // Mandatory Client Side Intercept Validation Pass
   form.addEventListener('submit', function(e){
     e.preventDefault();
 
@@ -831,10 +861,11 @@
     const phone = document.getElementById('phone').value.trim();
     const email = document.getElementById('email').value.trim();
     const pincode = document.getElementById('pincode').value.trim();
+    const address = document.getElementById('address').value.trim();
 
-    // Browser Blocking Security Guard Verification Checks
-    if (!name || !phone || !email || !pincode) {
-      statusEl.textContent = "⚠️ All details are mandatory. Please fill out Name, Phone, Email and Pincode.";
+    // Strict Mandatory Verification Block
+    if (!name || !phone || !email || !pincode || !address) {
+      statusEl.textContent = "⚠️ All details are mandatory. Please fill out Name, Phone, Email, Pincode, and Address.";
       statusEl.className = "form-status err";
       return;
     }
@@ -869,6 +900,7 @@
       phone: phone,
       email: email,
       pincode: pincode,
+      address: address,
       preferredDay: finalDayString,
       groupSize: (form.querySelector('input[name="groupSize"]:checked') || {}).value || "",
       drConsult: document.getElementById('drConsultCheck').checked ? "Yes" : "No",
