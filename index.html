@@ -326,14 +326,12 @@
     flex-direction:column;
     gap:12px;
   }
-  .desc-text{
-    font-size:13px;
-    color:#5a5064;
-    background:var(--cream);
-    border-left:3px solid var(--gold);
-    padding:10px 14px;
-    border-radius:6px;
-    margin-bottom:18px;
+  .mandatory-note-text {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blood);
+    margin-bottom: 14px;
+    display: block;
   }
   
   /* Customized Selection Addon Boxes styling */
@@ -449,7 +447,6 @@
     font-weight: 600;
   }
 
-  /* ---------- Footer ---------- */
   footer{
     text-align:center;
     padding:24px 20px;
@@ -638,8 +635,8 @@
         </fieldset>
 
         <div class="field">
-          <label for="pincode">2. Enter your Pincode (to check service availability)</label>
-          <input type="text" id="pincode" name="pincode" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="e.g. 110001" required>
+          <label for="pincode">2. Enter your Pincode (to check service availability) *</label>
+          <input type="text" id="pincode" name="pincode" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="e.g. 400706" required>
           <div class="pincode-status" id="pincodeStatus"></div>
         </div>
 
@@ -672,16 +669,19 @@
           </div>
         </div>
 
+        <!-- MANDATORY INPUT LABELS -->
+        <span class="mandatory-note-text">⚠️ All details below are strictly mandatory:</span>
+
         <div class="field priority">
-          <label for="phone">Phone Number</label>
+          <label for="phone">Phone Number *</label>
           <input type="tel" id="phone" name="phone" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" placeholder="10-digit mobile number" required autofocus>
         </div>
         <div class="field">
-          <label for="name">Full Name</label>
+          <label for="name">Full Name *</label>
           <input type="text" id="name" name="name" placeholder="Your full name" required>
         </div>
         <div class="field">
-          <label for="email">Email Address</label>
+          <label for="email">Email Address *</label>
           <input type="email" id="email" name="email" placeholder="you@example.com" required>
         </div>
 
@@ -715,7 +715,7 @@
 </footer>
 
 <script>
-  // ⚠️ BACKEND WEB APP CONFIGURATION LINK
+  // ⚠️ YOUR SPECIFIC APP SCRIPT DESTINATION ROUTE
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwclhYTQOKN-8lk5d90va2fUS_DV7XqZgHqa8CvmajUoGJGwaYEC2Hy9-PIVPyychuzsA/exec";
 
   // 📞 CENTRALIZED CALL ATTRIBUTION TRACKING VARIABLE
@@ -737,7 +737,6 @@
   }
   initializePhoneAttribution();
 
-  // Accordion Controller Logic
   function toggleDetails(id) {
     const targetElement = document.getElementById(id);
     const activeDrawers = document.querySelectorAll('.details-content');
@@ -748,7 +747,6 @@
     targetElement.classList.toggle('open');
   }
 
-  // Handle CSS class rendering for custom pill selection styling
   document.querySelectorAll('.choice-group').forEach(group => {
     group.querySelectorAll('input').forEach(input => {
       input.addEventListener('change', () => {
@@ -758,7 +756,6 @@
     });
   });
 
-  // Toggle absolute visibility states for secondary Date & Time picker fields
   const datePickerWrap = document.getElementById('datePickerWrap');
   const preferredDateInput = document.getElementById('preferredDate');
   const preferredTimeSelect = document.getElementById('preferredTime');
@@ -788,9 +785,7 @@
   const pincodeStatus = document.getElementById('pincodeStatus');
   let pincodeCheckTimer = null;
 
-  // Real-time remote dual-endpoint checker logic mapping loop execution pass
   function checkPincode(value){
-    if (GOOGLE_SCRIPT_URL.indexOf("PASTE_YOUR") !== -1) return;
     if (!/^[0-9]{6}$/.test(value)) {
       pincodeStatus.textContent = "";
       pincodeStatus.className = "pincode-status";
@@ -802,12 +797,10 @@
     fetch(`${GOOGLE_SCRIPT_URL}?action=checkPincode&pincode=${value}`)
       .then(res => res.json())
       .then(data => {
-        // If EITHER the standard list OR the SM sheet evaluates to true, service area is active
         if (data.serviceable || data.smServiceable) {
           pincodeStatus.textContent = "✅ We currently serve this area";
           pincodeStatus.className = "pincode-status yes";
         } else {
-          // New requested disclaimer string rules applied natively below
           pincodeStatus.textContent = "⚠️ Not in our service area yet — we will try to arrange";
           pincodeStatus.className = "pincode-status no";
         }
@@ -824,36 +817,44 @@
     pincodeCheckTimer = setTimeout(() => checkPincode(this.value), 400);
   });
 
-  function getParam(name){
-    return new URLSearchParams(window.location.search).get(name) || "";
-  }
-
   function formatDisplayDate(isoDate){
     if (!isoDate) return "";
     const d = new Date(isoDate + 'T00:00:00');
     return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
-  // Primary Submission Pipeline Processing
+  // Mandatory Client Side Intercept Validation Pass
   form.addEventListener('submit', function(e){
     e.preventDefault();
 
+    const name = document.getElementById('name').value.trim();
     const phone = document.getElementById('phone').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const pincode = document.getElementById('pincode').value.trim();
+
+    // Browser Blocking Security Guard Verification Checks
+    if (!name || !phone || !email || !pincode) {
+      statusEl.textContent = "⚠️ All details are mandatory. Please fill out Name, Phone, Email and Pincode.";
+      statusEl.className = "form-status err";
+      return;
+    }
+
     if (!/^[0-9]{10}$/.test(phone)) {
-      statusEl.textContent = "Please enter a valid 10-digit phone number.";
+      statusEl.textContent = "Please enter a valid 10-digit mobile number.";
+      statusEl.className = "form-status err";
+      return;
+    }
+
+    if (!/^[0-9]{6}$/.test(pincode)) {
+      statusEl.textContent = "Please enter a valid 6-digit pin code.";
       statusEl.className = "form-status err";
       return;
     }
 
     const preferredDayChoice = (form.querySelector('input[name="preferredDay"]:checked') || {}).value || "";
     if (preferredDayChoice === 'Specific date') {
-      if (!preferredDateInput.value) {
-        statusEl.textContent = "Please choose a date on the calendar.";
-        statusEl.className = "form-status err";
-        return;
-      }
-      if (!preferredTimeSelect.value) {
-        statusEl.textContent = "Please choose a morning time slot.";
+      if (!preferredDateInput.value || !preferredTimeSelect.value) {
+        statusEl.textContent = "Please pick your calendar date and time slot.";
         statusEl.className = "form-status err";
         return;
       }
@@ -864,13 +865,12 @@
       : preferredDayChoice;
 
     const payload = {
-      name: document.getElementById('name').value.trim(),
+      name: name,
       phone: phone,
-      email: document.getElementById('email').value.trim(),
-      pincode: document.getElementById('pincode').value.trim(),
+      email: email,
+      pincode: pincode,
       preferredDay: finalDayString,
       groupSize: (form.querySelector('input[name="groupSize"]:checked') || {}).value || "",
-      // Sent cleanly as distinct decoupled key-value map values straight to distinct columns
       drConsult: document.getElementById('drConsultCheck').checked ? "Yes" : "No",
       hardCopy: document.getElementById('hardCopyCheck').checked ? "Yes" : "No"
     };
@@ -895,7 +895,7 @@
       if (typeof fbq === 'function') { fbq('track', 'Lead'); }
     })
     .catch(() => {
-      statusEl.textContent = `Submission error. Please check network connectivity parameters and try again.`;
+      statusEl.textContent = `Submission error. Please check your data connection and try again.`;
       statusEl.className = "form-status err";
       submitBtn.textContent = "Book My Checkup Now";
       submitBtn.disabled = false;
