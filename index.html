@@ -30,7 +30,6 @@
     line-height:1.5;
   }
   img{max-width:100%; display:block;}
-
   main{padding-top:0px;}
 
   /* ---------- Hero ---------- */
@@ -307,10 +306,11 @@
     font-weight:600;
     margin-top:6px;
     min-height:16px;
+    line-height: 1.4;
   }
   .pincode-status.checking{color:#8a7f96;}
   .pincode-status.yes{color:var(--teal);}
-  .pincode-status.no{color:var(--blood);}
+  .pincode-status.no{color:var(--blood); background:#FFF0F1; padding:8px 12px; border-radius:8px; border:1px solid rgba(166,48,62,0.15);}
   
   .date-picker-wrap{
     display:none;
@@ -468,6 +468,7 @@
 
 <main>
 
+  <!-- HERO -->
   <section class="hero">
     <h1>Know Your Health Status<br>With Ease</h1>
 
@@ -487,12 +488,14 @@
     </div>
   </section>
 
+  <!-- TRUST STRIP -->
   <section class="trust-strip">
     <div class="trust-item"><span class="icon">🏠</span> Safe Home Sample Collection</div>
     <div class="trust-item"><span class="icon">🩺</span> Free Online Dr. Consultation</div>
     <div class="trust-item"><span class="icon">📋</span> Fast &amp; Precise Digital Reports</div>
   </section>
 
+  <!-- ACCORDION CONTENT PANEL -->
   <section class="breakdown">
     <div class="breakdown-header">
       <div class="num">66</div>
@@ -592,6 +595,7 @@
     </div>
   </section>
 
+  <!-- LEADS CAPTURE FORM -->
   <section class="form-section" id="leadForm">
     <div class="form-wrap" id="formInterfaceWrapper">
       <h2 id="formMainTitle">Book Your ₹1099 Checkup</h2>
@@ -651,6 +655,7 @@
           </div>
         </fieldset>
 
+        <!-- INTERACTIVE OPT-IN ADDON WRAPPERS -->
         <div class="selection-addon-wrapper">
           <div class="addon-checkbox-box">
             <label for="drConsultCheck">
@@ -684,6 +689,7 @@
         <div class="form-status" id="formStatus"></div>
       </form>
 
+      <!-- EXCLUSIVE REVEAL: IVR Post-Submit Screen View -->
       <div id="ivrPostSubmitSuccessView" style="display: none;">
         <div class="ivr-success-container">
           <div class="success-icon">✅</div>
@@ -709,13 +715,12 @@
 </footer>
 
 <script>
-  // ⚠️ BACKEND WEB APP CONFIGURATION
+  // ⚠️ BACKEND WEB APP CONFIGURATION LINK
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwclhYTQOKN-8lk5d90va2fUS_DV7XqZgHqa8CvmajUoGJGwaYEC2Hy9-PIVPyychuzsA/exec";
 
   // 📞 CENTRALIZED CALL ATTRIBUTION TRACKING VARIABLE
   const TRACKING_PHONE_NUMBER = "9811076780"; 
 
-  // Format and distribute tracking phone digits inside the secure success drawer layout
   function initializePhoneAttribution() {
     const rawDigits = TRACKING_PHONE_NUMBER.replace(/\D/g, '');
     if (rawDigits.length !== 10) return;
@@ -783,7 +788,7 @@
   const pincodeStatus = document.getElementById('pincodeStatus');
   let pincodeCheckTimer = null;
 
-  // Real-time remote endpoint Pincode Lookup Handler
+  // Real-time remote dual-endpoint checker logic mapping loop execution pass
   function checkPincode(value){
     if (GOOGLE_SCRIPT_URL.indexOf("PASTE_YOUR") !== -1) return;
     if (!/^[0-9]{6}$/.test(value)) {
@@ -797,11 +802,13 @@
     fetch(`${GOOGLE_SCRIPT_URL}?action=checkPincode&pincode=${value}`)
       .then(res => res.json())
       .then(data => {
-        if (data.serviceable) {
+        // If EITHER the standard list OR the SM sheet evaluates to true, service area is active
+        if (data.serviceable || data.smServiceable) {
           pincodeStatus.textContent = "✅ We currently serve this area";
           pincodeStatus.className = "pincode-status yes";
         } else {
-          pincodeStatus.textContent = "⚠️ Not in our service area yet — we'll still note your interest";
+          // New requested disclaimer string rules applied natively below
+          pincodeStatus.textContent = "⚠️ Not in our service area yet — we will try to arrange";
           pincodeStatus.className = "pincode-status no";
         }
       })
@@ -831,12 +838,6 @@
   form.addEventListener('submit', function(e){
     e.preventDefault();
 
-    if (GOOGLE_SCRIPT_URL.indexOf("PASTE_YOUR") !== -1) {
-      statusEl.textContent = "⚠️ Form not connected yet — paste the Apps Script URL in index.html.";
-      statusEl.className = "form-status err";
-      return;
-    }
-
     const phone = document.getElementById('phone').value.trim();
     if (!/^[0-9]{10}$/.test(phone)) {
       statusEl.textContent = "Please enter a valid 10-digit phone number.";
@@ -862,9 +863,6 @@
       ? `${formatDisplayDate(preferredDateInput.value)} (${preferredTimeSelect.value})`
       : preferredDayChoice;
 
-    const drConsultStatus = document.getElementById('drConsultCheck').checked ? "Yes" : "No";
-    const hardCopyStatus = document.getElementById('hardCopyCheck').checked ? "Yes" : "No";
-
     const payload = {
       name: document.getElementById('name').value.trim(),
       phone: phone,
@@ -872,7 +870,9 @@
       pincode: document.getElementById('pincode').value.trim(),
       preferredDay: finalDayString,
       groupSize: (form.querySelector('input[name="groupSize"]:checked') || {}).value || "",
-      source: "Meta Ads Landing Page" + (getParam('utm_campaign') ? " | " + getParam('utm_campaign') : "") + " | Dr Consult: " + drConsultStatus + " | Hard Copy: " + hardCopyStatus
+      // Sent cleanly as distinct decoupled key-value map values straight to distinct columns
+      drConsult: document.getElementById('drConsultCheck').checked ? "Yes" : "No",
+      hardCopy: document.getElementById('hardCopyCheck').checked ? "Yes" : "No"
     };
 
     submitBtn.disabled = true;
@@ -886,12 +886,10 @@
       body: JSON.stringify(payload)
     })
     .then(() => {
-      // Hide form parameters completely
       document.getElementById('bookingForm').style.display = 'none';
       document.getElementById('formMainTitle').style.display = 'none';
       document.getElementById('formSubHeading').style.display = 'none';
       
-      // Reveal the call option line layout block
       document.getElementById('ivrPostSubmitSuccessView').style.display = 'block';
 
       if (typeof fbq === 'function') { fbq('track', 'Lead'); }
